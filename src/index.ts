@@ -1,8 +1,7 @@
 // const readline = require('readline');
-var client_id = "LQjhJidFp5eZbbqd839g0K";
-var client_secret = "nxerjFKIQlqNqib9rkT6aS7LrhOhBMqRQ5JQBSVEMkW";
-var redirect_uri = "https://0b8a5c25.ngrok.io/callback";
-var auth_code = "";
+var client_id = "NtP97LGBUEjt9T6XVCjR5b";
+var client_secret = "IJqvGHmerFsxjux4BrmhQZnhjMF33leU1nDEABDNbCb";
+var redirect_uri = "http://0c8b17ed.ngrok.io/callback";
 
 var spawn = require('child_process').spawn
 import * as builder from "botbuilder";
@@ -15,6 +14,7 @@ var readline = require("readline");
 //1.start to get auth code
 var state = "getAuthCode"
 var url = "https://notify-bot.line.me/oauth/authorize?client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect_uri + "&scope=notify&state=" + state + "&response_mode=form_post";
+console.log(url)
 spawn('open', [url]);
 
 
@@ -24,8 +24,10 @@ app.use(bodyParser.urlencoded());
 
 app.post('/callback', function (req, rep) {
     let code = req.body.code;
+    console.log("code", code)
     if ("getAuthCode" === req.body.state) {
         //2.start get auth token
+
         var formData = {
             grant_type: "authorization_code",
             code: code,
@@ -38,11 +40,11 @@ app.post('/callback', function (req, rep) {
             formData: formData
         },
             (err, httpResponse, body) => {
-            
 
                 var json = JSON.parse(body);
 
                 let access_token = json.access_token;
+                console.log("access_token", access_token)
 
                 const rl = readline.createInterface({
                     input: process.stdin,
@@ -74,50 +76,3 @@ app.post('/callback', function (req, rep) {
     rep.end("ok")
 })
 app.listen(3000);
-
-
-//1.get code
-
-
-//2.get access tokken
-// var formData = {
-//     grant_type : "authorization_code",
-//     code : "Nghijm8sJVSWvOJM2okYeZ",
-//     redirect_uri : "https://0b8a5c25.ngrok.io/callback",
-//     client_id : "LQjhJidFp5eZbbqd839g0K",
-//     client_secret : "nxerjFKIQlqNqib9rkT6aS7LrhOhBMqRQ5JQBSVEMkW"
-// }
-// request.post({
-//     url:"https://notify-bot.line.me/oauth/token",
-//     formData  : formData
-// },
-
-// (err, httpResponse, body)=>{
-//     // console.log(err);
-
-//     // console.log(httpResponse);
-
-//     console.log(body);
-
-// });
-//3.
-// request.post({
-//     url:"https://notify-api.line.me/api/notify",
-//     headers : {
-// "Content-Type":"application/x-www-form-urlencoded",
-//     "Authorization" : "Bearer iKpUPQH8Be0UzdOdyGQiDl590yhaOMPqqW5AMWnSCh7"
-//     },
-//     formData: {
-//             message :"Hello 中文呢?",
-
-//         }
-//     },
-
-// (err, httpResponse, body)=>{
-
-//     console.log(body);
-
-// }
-
-
-//3.
