@@ -1,7 +1,7 @@
 // const readline = require('readline');
 var client_id = "NtP97LGBUEjt9T6XVCjR5b";
 var client_secret = "IJqvGHmerFsxjux4BrmhQZnhjMF33leU1nDEABDNbCb";
-var redirect_uri = "http://0c8b17ed.ngrok.io/callback";
+var redirect_uri = "https://c76234b1.ngrok.io/callback" + "?uid=test";
 
 var spawn = require('child_process').spawn
 import * as builder from "botbuilder";
@@ -24,10 +24,9 @@ app.use(bodyParser.urlencoded());
 
 app.post('/callback', function (req, rep) {
     let code = req.body.code;
-    console.log("code", code)
+    let uid =  req.query.uid;
     if ("getAuthCode" === req.body.state) {
         //2.start get auth token
-
         var formData = {
             grant_type: "authorization_code",
             code: code,
@@ -40,36 +39,43 @@ app.post('/callback', function (req, rep) {
             formData: formData
         },
             (err, httpResponse, body) => {
-
                 var json = JSON.parse(body);
-
-                let access_token = json.access_token;
-                console.log("access_token", access_token)
+                const access_token = json.access_token;
+                //set uid with access_token
 
                 const rl = readline.createInterface({
                     input: process.stdin,
                     output: process.stdout
                 });
-                rl.question('say words? ', (answer) => {
-                    //3.start to notify
-                    request.post({
-                        url: "https://notify-api.line.me/api/notify",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                            "Authorization": "Bearer " + access_token
+
+                let ansyncQ = () => {
+                    rl.question('say words? ', (answer) => {
+                        //3.start to notify
+                        console.log(answer, access_token)
+
+                        request.post({
+                            url: "https://notify-api.line.me/api/notify",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded",
+                                "Authorization": "Bearer " + access_token
+                            },
+                            formData: {
+                                message: answer,
+                            }
                         },
-                        formData: {
-                            message: answer,
-                        }
-                    },
-                        (err, httpResponse, body) => {
+                            (err, httpResponse, body) => {
 
-                            console.log(body);
-                        }
-                    )
+                                console.log(body);
+                            }
+                        )
+                        ansyncQ();
 
-                    rl.close();
-                });
+
+                        // rl.close();
+                    });
+                }
+                ansyncQ();
+
 
             });
     }

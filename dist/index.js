@@ -1,8 +1,8 @@
 "use strict";
 // const readline = require('readline');
-var client_id = "LQjhJidFp5eZbbqd839g0K";
-var client_secret = "nxerjFKIQlqNqib9rkT6aS7LrhOhBMqRQ5JQBSVEMkW";
-var redirect_uri = "http://0c8b17ed.ngrok.io/callback";
+var client_id = "NtP97LGBUEjt9T6XVCjR5b";
+var client_secret = "IJqvGHmerFsxjux4BrmhQZnhjMF33leU1nDEABDNbCb";
+var redirect_uri = "https://c76234b1.ngrok.io/callback" + "?uid=test";
 var spawn = require('child_process').spawn;
 var express = require("express");
 var bodyParser = require("body-parser");
@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.post('/callback', function (req, rep) {
     var code = req.body.code;
-    console.log("code", code);
+    var uid = req.query.uid;
     if ("getAuthCode" === req.body.state) {
         //2.start get auth token
         var formData = {
@@ -34,27 +34,32 @@ app.post('/callback', function (req, rep) {
         }, function (err, httpResponse, body) {
             var json = JSON.parse(body);
             var access_token = json.access_token;
-            console.log("access_token", access_token);
+            //set uid with access_token
             var rl = readline.createInterface({
                 input: process.stdin,
                 output: process.stdout
             });
-            rl.question('say words? ', function (answer) {
-                //3.start to notify
-                request.post({
-                    url: "https://notify-api.line.me/api/notify",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "Authorization": "Bearer " + access_token
-                    },
-                    formData: {
-                        message: answer,
-                    }
-                }, function (err, httpResponse, body) {
-                    console.log(body);
+            var ansyncQ = function () {
+                rl.question('say words? ', function (answer) {
+                    //3.start to notify
+                    console.log(answer, access_token);
+                    request.post({
+                        url: "https://notify-api.line.me/api/notify",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Authorization": "Bearer " + access_token
+                        },
+                        formData: {
+                            message: answer,
+                        }
+                    }, function (err, httpResponse, body) {
+                        console.log(body);
+                    });
+                    ansyncQ();
+                    // rl.close();
                 });
-                rl.close();
-            });
+            };
+            ansyncQ();
         });
     }
     rep.end("ok");
