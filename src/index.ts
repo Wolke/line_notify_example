@@ -4,11 +4,10 @@ var client_secret = "IJqvGHmerFsxjux4BrmhQZnhjMF33leU1nDEABDNbCb";
 var redirect_uri = "https://c76234b1.ngrok.io/callback" + "?uid=test";
 
 var spawn = require('child_process').spawn
-import * as builder from "botbuilder";
 import https = require("https");
-import express = require("express");
-import bodyParser = require('body-parser');
-import request = require("request");
+import * as express from "express";
+import * as bodyParser from "body-parser";
+import * as request from "request";
 var readline = require("readline");
 
 //1.start to get auth code
