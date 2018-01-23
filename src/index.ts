@@ -1,7 +1,7 @@
 // const readline = require('readline');
-var client_id = "NtP97LGBUEjt9T6XVCjR5b";
-var client_secret = "IJqvGHmerFsxjux4BrmhQZnhjMF33leU1nDEABDNbCb";
-var redirect_uri = "https://c76234b1.ngrok.io/callback" + "?uid=test";
+var client_id = "CrjXwSVi5DDmr4PHX35YhZ";
+var client_secret = "ATVbZUqkSJY5iiumcLnaGAGrw6juL9IcVzlF86CYLJX";
+var redirect_uri = "https://d732c279.ngrok.io/callback" + "?uid=test";
 
 var spawn = require('child_process').spawn
 import https = require("https");
@@ -16,6 +16,25 @@ var url = "https://notify-bot.line.me/oauth/authorize?client_id=" + client_id + 
 console.log(url)
 spawn('open', [url]);
 
+const ask = (access_token: string, answer: string) => {
+
+    request.post({
+        url: "https://notify-api.line.me/api/notify",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Bearer " + access_token
+        },
+        formData: {
+            message: answer,
+        }
+    },
+        (err, httpResponse, body) => {
+
+            console.log(body);
+        }
+    )
+}
+ask("aFMVIvEruwItJWgq5Q5erZ2Hj74x1xjAM2Z5LGrSxkd","87")
 
 let app = express();
 app.use(bodyParser.json());
@@ -23,7 +42,7 @@ app.use(bodyParser.urlencoded());
 
 app.post('/callback', function (req, rep) {
     let code = req.body.code;
-    let uid =  req.query.uid;
+    let uid = req.query.uid;
     if ("getAuthCode" === req.body.state) {
         //2.start get auth token
         var formData = {
@@ -51,22 +70,7 @@ app.post('/callback', function (req, rep) {
                     rl.question('say words? ', (answer) => {
                         //3.start to notify
                         console.log(answer, access_token)
-
-                        request.post({
-                            url: "https://notify-api.line.me/api/notify",
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded",
-                                "Authorization": "Bearer " + access_token
-                            },
-                            formData: {
-                                message: answer,
-                            }
-                        },
-                            (err, httpResponse, body) => {
-
-                                console.log(body);
-                            }
-                        )
+                        ask(access_token,answer);
                         ansyncQ();
 
 
